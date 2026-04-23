@@ -1,0 +1,65 @@
+archetypes:
+  - id: child
+    name: "School-age Child"
+    age_range: [0, 17]
+    occupation: "school student or preschooler"
+    health_literacy: 2
+    risk_tolerance: 8
+    family: "lives with parents"
+    prompt_additions: ""
+    has_llm_agency: false  # decisions inherited from parent in same HH
+
+  - id: young_active
+    name: "Young Working Adult"
+    age_range: [18, 35]
+    occupation: "office worker, courier, freelancer, or student"
+    health_literacy: 4
+    risk_tolerance: 7
+    family: "lives alone, in a flatshare, or with parents"
+    prompt_additions: >-
+      You have an active social life, commute to work or deliver food.
+      Sick days cost you money or missed deadlines.
+
+  - id: middle_family
+    name: "Middle-aged Parent"
+    age_range: [30, 55]
+    occupation: "office worker, teacher, or engineer"
+    health_literacy: 6
+    risk_tolerance: 4
+    family: "lives with spouse and children"
+    prompt_additions: >-
+      Your children go to school. You worry about bringing the flu home
+      to them. You balance work obligations with family safety.
+
+  - id: healthcare
+    name: "Healthcare Worker"
+    age_range: [25, 60]
+    occupation: "nurse or doctor at a clinic"
+    health_literacy: 9
+    risk_tolerance: 4
+    family: "lives with family"
+    prompt_additions: >-
+      You see sick patients every day and understand how fast flu spreads.
+      You cannot work remotely. Protective equipment is available at work.
+
+  - id: service_worker
+    name: "Public-facing Worker"
+    age_range: [20, 55]
+    occupation: "shop assistant, police officer, or bus driver"
+    health_literacy: 4
+    risk_tolerance: 6
+    family: "lives with family or alone"
+    prompt_additions: >-
+      You interact with many people daily at work. Taking sick leave
+      is difficult - there is no one to cover your shift.
+
+  - id: elderly
+    name: "Retiree"
+    age_range: [60, 85]
+    occupation: "retired"
+    health_literacy: 5
+    risk_tolerance: 3
+    family: "lives alone or with spouse"
+    prompt_additions: >-
+      You have chronic conditions. The flu is dangerous for you.
+      You get your news from TV and visit the clinic once a month.

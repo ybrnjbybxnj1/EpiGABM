@@ -1,0 +1,111 @@
+model:
+  population_size: 3000           # subsample whole HH from the JoCS synthetic pop
+  network:
+    type: barabasi_albert
+    m: 5
+  seir:
+    sigma: 0.2
+    gamma: 0.14
+    initial_immunity: 0.3
+  lmbd: 0.4                      # base transmission rate (lambda)
+  strains: ["H1N1", "H3N2", "B"]
+  infected_init:                  # initial infected per strain
+    H1N1: 10
+    H3N2: 0
+    B: 0
+  alpha:                          # fraction susceptible per strain
+    H1N1: 0.78
+    H3N2: 0.74
+    B: 0.6
+  days: [1, 150]
+
+agents:
+  n_archetypes: 6                  # child, young_active, middle_family, healthcare, service_worker, elderly
+  update_trigger: phase_change    # phase_change | every_n_steps
+  update_every_n: 7
+  stochastic_noise: 0.3            # higher noise = more individual variability
+  behavior_activation:
+    min_prevalence: 0.01           # 1% - agents react early, in GROWTH phase (Funk et al. 2010)
+    news_threshold: 0.05           # 5% - only then news/official measures appear
+    include_local_awareness: true
+  compliance_rate:
+    isolate_healthy: 0.25          # ~25% healthy self-isolate out of caution
+    mask: 0.30                     # ~30% wear masks (only non-isolating agents)
+    reduce_contacts: 0.40          # ~40% reduce contacts
+    see_doctor: 0.20               # ~20% visit doctor for mild flu
+  mask_reduction_factor: 0.5
+  contact_reduction_factor: 0.7
+  doctor_recovery_day: 6
+  max_cost_usd: 50
+  primary_backend: llama
+  compare_backends: true
+  backends:
+    gpt4:
+      model: gpt-4o
+      temperature: 0.3
+      max_tokens: 500
+      cost_per_1m_input: 2.50
+      cost_per_1m_output: 10.0
+    llama:
+      model: llama3.1:8b
+      endpoint: http://localhost:11434
+      temperature: 0.3
+    gemma:
+      model: gemma3:12b             # 12B, 128K context
+      endpoint: http://localhost:11434
+      temperature: 0.3
+    qwen:
+      model: qwen3:8b               # 8B, strong instruction following
+      endpoint: http://localhost:11434
+      temperature: 0.3
+    mock:
+      deterministic: true
+
+regime:
+  method: combined                 # options: combined | relative_rt | hmm | threshold
+  hmm:
+    n_states: 4
+    features: [incidence, growth_rate]
+  threshold:
+    method: roll_var_npeople
+  relative_rt:                     # R_t estimator + fraction-of-plateau trigger
+    si_mean: 2.6                   # influenza serial interval mean, days 
+    si_sd: 1.5                     # SD of serial interval, days
+    si_max_lag: 14
+    tau: 5                         # tau-window length for R_t
+    alpha: 0.7                     # trigger when R_t < alpha * plateau
+    warmup_days: 5                 # R_t samples collected after prevalence floor to set plateau
+    confirm_days: 2                # consecutive days below alpha*plateau
+    min_prevalence: 0.02           # floor to suppress stochastic dips (2% of pop)
+    absolute_fallback: 1.0         # safety net: also trigger if R_t < 1 (classical criterion)
+
+calibration:
+  method: hm_abc
+  hm_waves: 3
+  abc_method: smc
+  abc_n_particles: 1000
+  beta_prediction: regression
+
+uncertainty:
+  bootstrap_runs: 100
+  confidence_level: 0.95
+
+visualization:
+  geo_district: Vasileostrovsky
+  map_zoom: 15
+  show_edges: false
+  snapshot_every_n_days: 1        # save DaySnapshot every N days (1=every day)
+
+data:
+  archetypes_file: config/archetypes.yaml
+  population_dir: data/population/
+  calibration_season: 2014-2015
+  validation_seasons: [2015-2016, 2016-2017]
+  raw_data_dir: data/raw/
+  geo_file: data/geo/vasileostrovsky.geojson
+
+output:
+  metrics_dir: results/metrics/
+  snapshots_dir: results/snapshots/
+  logs_dir: results/logs/
+  figures_dir: results/figures/
